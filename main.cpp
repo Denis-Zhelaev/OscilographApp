@@ -4,12 +4,12 @@
 #include <string>
 #include <shlobj.h>
 
-// Глобальные переменные
-HWND g_hLogEdit;       // Окно для лога
-HWND g_hMainWindow;    // Главное окно
-const wchar_t* g_logFileName = L"log.txt"; // Имя файла лога
+// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
+HWND g_hLogEdit;       // РџРѕР»Рµ РґР»СЏ Р»РѕРіР°
+HWND g_hMainWindow;    // Р“Р»Р°РІРЅРѕРµ РѕРєРЅРѕ
+const wchar_t* g_logFileName = L"log.txt"; // РРјСЏ С„Р°Р№Р»Р° Р»РѕРіР°
 
-// Прототипы функций
+// РћР±СЉСЏРІР»РµРЅРёСЏ С„СѓРЅРєС†РёР№
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void RegisterWindowClass(HINSTANCE hInstance);
 HWND CreateMainWindow(HINSTANCE hInstance);
@@ -17,7 +17,7 @@ void AddToLog(const wchar_t* message);
 void SaveLogToFile();
 std::wstring GetExecutableDirectory();
 
-// Точка входа
+// Р“Р»Р°РІРЅР°СЏ С„СѓРЅРєС†РёСЏ
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
     RegisterWindowClass(hInstance);
@@ -28,7 +28,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     ShowWindow(g_hMainWindow, nCmdShow);
     UpdateWindow(g_hMainWindow);
 
-    // Инициализация лога
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р»РѕРіР°
     AddToLog(L"Application started");
 
     MSG msg;
@@ -41,7 +41,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     return (int)msg.wParam;
 }
 
-// Регистрация класса окна
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ РєР»Р°СЃСЃР° РѕРєРЅР°
 void RegisterWindowClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
@@ -62,45 +62,50 @@ void RegisterWindowClass(HINSTANCE hInstance)
     RegisterClassExW(&wcex);
 }
 
-// Создание главного окна
+// РЎРѕР·РґР°РЅРёРµ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
 HWND CreateMainWindow(HINSTANCE hInstance)
 {
-    // Увеличиваем размер главного окна
+    // РЎРѕР·РґР°РЅРёРµ РѕСЃРЅРѕРІРЅРѕРіРѕ РѕРєРЅР°
     HWND hWnd = CreateWindowExW(
         0,
         L"MyWindowClass",
         L"Simple WinAPI App",
         WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, // Увеличенный размер
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
         nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) return nullptr;
 
-    // Создаем меню
+    // РЎРѕР·РґР°РЅРёРµ РјРµРЅСЋ
     HMENU hMenu = CreateMenu();
-    HMENU hSubMenu = CreatePopupMenu();
+    HMENU hFileMenu = CreatePopupMenu();
+    HMENU hConnectionMenu = CreatePopupMenu();
 
-    AppendMenuW(hSubMenu, MF_STRING, 1, L"Check");
-    AppendMenuW(hSubMenu, MF_STRING, 2, L"Translate");
-    AppendMenuW(hSubMenu, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(hSubMenu, MF_STRING, 3, L"Save");
+    // РњРµРЅСЋ File
+    AppendMenuW(hFileMenu, MF_STRING, 3, L"Save");
+    AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
 
-    AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hSubMenu, L"Menu");
+    // РњРµРЅСЋ Connection
+    AppendMenuW(hConnectionMenu, MF_STRING, 4, L"Connect RS-232");
+    AppendMenuW(hConnectionMenu, MF_STRING, 5, L"Connect USB");
+    AppendMenuW(hConnectionMenu, MF_STRING, 6, L"Connect Ethernet");
+    AppendMenuW(hMenu, MF_POPUP, (UINT_PTR)hConnectionMenu, L"Connection");
+
     SetMenu(hWnd, hMenu);
 
-    // Создаем окно для лога (занимает 1/4 высоты окна)
+    // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЏ РґР»СЏ Р»РѕРіР°
     g_hLogEdit = CreateWindowExW(
         WS_EX_CLIENTEDGE,
         L"EDIT",
         L"",
         WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
-        10, 400, 760, 150, // Позиция и размер (1/4 высоты окна)
+        10, 400, 760, 150,
         hWnd,
         (HMENU)101,
         hInstance,
         nullptr);
 
-    // Устанавливаем шрифт
+    // РЈСЃС‚Р°РЅРѕРІРєР° С€СЂРёС„С‚Р°
     HFONT hFont = CreateFontW(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, L"Arial");
@@ -109,26 +114,26 @@ HWND CreateMainWindow(HINSTANCE hInstance)
     return hWnd;
 }
 
-// Добавление сообщения в лог
+// Р”РѕР±Р°РІР»РµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ РІ Р»РѕРі
 void AddToLog(const wchar_t* message)
 {
-    // Получаем текущее время
+    // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ РІСЂРµРјРµРЅРё
     SYSTEMTIME st;
     GetLocalTime(&st);
     wchar_t timeStr[64];
     swprintf_s(timeStr, L"[%02d:%02d:%02d] ", st.wHour, st.wMinute, st.wSecond);
 
-    // Добавляем время к сообщению
+    // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РїРѕР»РЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
     wchar_t fullMessage[1024];
-    swprintf_s(fullMessage, L"%s%s\r\n", timeStr, message);
+    swprintf_s(fullMessage, L"%s%s\n", timeStr, message);
 
-    // Добавляем в edit control
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РІ edit control
     int len = GetWindowTextLengthW(g_hLogEdit);
     SendMessageW(g_hLogEdit, EM_SETSEL, len, len);
     SendMessageW(g_hLogEdit, EM_REPLACESEL, FALSE, (LPARAM)fullMessage);
 }
 
-// Получение директории, где находится исполняемый файл
+// РџРѕР»СѓС‡РµРЅРёРµ РґРёСЂРµРєС‚РѕСЂРёРё РёСЃРїРѕР»РЅСЏРµРјРѕРіРѕ С„Р°Р№Р»Р°
 std::wstring GetExecutableDirectory()
 {
     wchar_t path[MAX_PATH];
@@ -138,11 +143,15 @@ std::wstring GetExecutableDirectory()
     return wsPath.substr(0, pos);
 }
 
-// Сохранение лога в файл
+// РЎРѕС…СЂР°РЅРµРЅРёРµ Р»РѕРіР° РІ С„Р°Р№Р»
 void SaveLogToFile()
 {
     OPENFILENAMEW ofn;
-    wchar_t szFileName[MAX_PATH] = L"log.txt";
+    // Р“РµРЅРµСЂР°С†РёСЏ РёРјРµРЅРё С„Р°Р№Р»Р° СЃ РґР°С‚РѕР№
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    wchar_t szFileName[MAX_PATH];
+    swprintf_s(szFileName, L"log_%04d-%02d-%02d.txt", st.wYear, st.wMonth, st.wDay);
 
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
@@ -153,22 +162,42 @@ void SaveLogToFile()
     ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
     ofn.lpstrDefExt = L"txt";
 
-    // Устанавливаем начальную директорию
+    // РЈСЃС‚Р°РЅРѕРІРєР° РЅР°С‡Р°Р»СЊРЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё
     std::wstring initialDir = GetExecutableDirectory();
     ofn.lpstrInitialDir = initialDir.c_str();
 
     if (GetSaveFileNameW(&ofn))
     {
-        // Получаем текст из edit control
+        // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСЃС‚Р° РёР· edit control
         int len = GetWindowTextLengthW(g_hLogEdit) + 1;
         wchar_t* buf = new wchar_t[len];
         GetWindowTextW(g_hLogEdit, buf, len);
+        
+        // РћР±СЂР°Р±РѕС‚РєР° С‚РµРєСЃС‚Р°
+        std::wstring logText(buf);
+        
+        // Р—Р°РјРµРЅСЏРµРј РІСЃРµ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё \r\n РЅР° \n
+        size_t pos = 0;
+        while ((pos = logText.find(L"\r\n", pos)) != std::wstring::npos) {
+            logText.replace(pos, 2, L"\n");
+        }
+        
+        // РЈРґР°Р»СЏРµРј РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ РїРµСЂРµРЅРѕСЃС‹ СЃС‚СЂРѕРє
+        pos = 0;
+        while ((pos = logText.find(L"\n\n", pos)) != std::wstring::npos) {
+            logText.replace(pos, 2, L"\n");
+        }
+        
+        // РЈРґР°Р»СЏРµРј Р·Р°РІРµСЂС€Р°СЋС‰РёР№ РїРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё
+        if (!logText.empty() && logText.back() == L'\n') {
+            logText.pop_back();
+        }
 
-        // Записываем в файл
+        // Р—Р°РїРёСЃСЊ РІ С„Р°Р№Р»
         std::wofstream outFile(ofn.lpstrFile);
         if (outFile.is_open())
         {
-            outFile << buf;
+            outFile << logText;
             outFile.close();
             AddToLog(L"Log saved successfully");
         }
@@ -181,7 +210,7 @@ void SaveLogToFile()
     }
 }
 
-// Оконная процедура
+// РћРєРѕРЅРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР°
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -191,21 +220,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         int wmId = LOWORD(wParam);
         switch (wmId)
         {
-        case 1: // Check
-            AddToLog(L"Check button clicked");
-            break;
-        case 2: // Translate
-            AddToLog(L"Translate button clicked");
-            break;
         case 3: // Save
             SaveLogToFile();
+            break;
+        case 4: // Connect RS-232
+            AddToLog(L"RS-232 connection selected");
+            break;
+        case 5: // Connect USB
+            AddToLog(L"USB connection selected");
+            break;
+        case 6: // Connect Ethernet
+            AddToLog(L"Ethernet connection selected");
             break;
         }
     }
     break;
 
     case WM_CLOSE:
-        // Очищаем лог при закрытии
+        // РћС‡РёСЃС‚РєР° Р»РѕРіР° РїРµСЂРµРґ Р·Р°РєСЂС‹С‚РёРµРј
         SetWindowTextW(g_hLogEdit, L"");
         DestroyWindow(hWnd);
         break;
